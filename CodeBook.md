@@ -34,7 +34,8 @@ Activity ID | Activity Name
   5 | STANDING (value 5): subject was standing during the test
   6 | LAYING (value 6): subject was laying down during the test
 
-subject - The ID of the test subject
+subject - The ID of the test subject.
+
 activity - The type of activity performed when the corresponding measurements were taken
 
 The result is written into [tidy_data.txt](https://github.com/NyiNyiAye81/Getting_Data_Assignment/blob/master/tidy_data.txt).
