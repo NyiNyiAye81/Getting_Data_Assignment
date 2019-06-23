@@ -12,14 +12,9 @@ https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Datas
 
 After unzipping the data, we have a folder called UCI HAR Dataset and we will only need the following files:
 
-features.txt: list of names of features
-activity_labels.txt: class labels with their activity name
-train/subject_train.txt: subjects in training dataset
-train/X_train.txt: training set data
-train/y_train.txt: training set labels
-test/subject_test.txt: subjects in test dataset
-test/X_test.txt: test set data
-test/y_test.txt: test set labels
+features.txt, activity_labels.txt, train/subject_train.txt,train/X_train.txt, train/y_train.txt,test/subject_test.txt,
+test/X_test.txt ,test/y_test.txt
+
 ##Output
 
 The required tidy dataset tidy_data.txt is generated, with the average of each variable for each activity and each subject.
@@ -32,18 +27,14 @@ The variables in the tidy dataset include:
 
 Activity ID | Activity Name
   ------------|--------------
-  1 | WALKING
-  2 | WALKING_UPSTAIRS
-  3 | WALKING_DOWNSTAIRS
-  4 | SITTING
-  5 | STANDING
-  6 | LAYING
+  1 | WALKING (value 1): subject was walking during the test
+  2 | WALKING_UPSTAIRS (value 2): subject was walking up a staircase during the test
+  3 | WALKING_DOWNSTAIRS (value 3): subject was walking down a staircase during the test
+  4 | SITTING (value 4):subject was sitting during the test
+  5 | STANDING (value 5): subject was standing during the test
+  6 | LAYING (value 6): subject was laying down during the test
 
+subject - The ID of the test subject
+activity - The type of activity performed when the corresponding measurements were taken
 
-- subjectID: contain the subject IDs.
-
--variables in the 3rd to 81th column, which are extracted from the [features_info.txt](https://github.com/NyiNyiAye81/Getting_Data_Assignment/blob/master/UCI%20HAR%20Dataset/features_info.txt) file on the original dataset.
-
-##Description of analysis process:
-For step 1 to step 4, create create.dataset function with argument data.name which can be either 'test' or 'train'. The function merges the features, activitiy labels, subject IDs from .txt files and uses grep function to extract only measurements of means and standard deviations. Then create trainging and test datasets, and merge them into one tidy dataset.
-In step 5, use functions in reshape2 package to calculate the average of each variable for each activity. The result is written into [tidy_data.txt](https://github.com/NyiNyiAye81/Getting_Data_Assignment/blob/master/tidy_data.txt).
+The result is written into [tidy_data.txt](https://github.com/NyiNyiAye81/Getting_Data_Assignment/blob/master/tidy_data.txt).
