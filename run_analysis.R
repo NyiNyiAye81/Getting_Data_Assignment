@@ -4,54 +4,51 @@
 ## 4. Appropriately labels the data set with descriptive variable names. 
 ## 5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
-data.UCIrootdir <- "./UCI HAR Dataset"
-
-# Function to create (test or train) dataset
-create.dataset <- function(data.name) {
-  # data folder path
-  data.dir <- paste(data.UCIrootdir, "/", data.name, sep="")
-  
-  # measure names
-  measures <- read.table(paste(data.UCIrootdir, "/features.txt", sep=""))
-  names(measures) <- c("measureID", "measureName")
-  
-  # indices of measurements on the mean and standard deviation for each measurement
-  target.measure.idx <- grep("mean|std", measures$measureName)
-  
-  # subject IDs
-  subject <- read.table(paste(data.dir, "/subject_", data.name, ".txt", sep=""))
-  names(subject) <- c("subjectID")
-  
-  # activity IDs
-  y.data <- read.table(paste(data.dir, "/y_", data.name, ".txt", sep=""))
-  # activity labels
-  y.names <- read.table(paste(data.UCIrootdir, "/activity_labels.txt", sep=""))
-  # merge activity IDs and labels
-  y.data <- merge(y.data, y.names)
-  names(y.data) <- c("activityID", "activityName")
-  
-  # data of target measurements
-  x.data <- read.table(paste(data.dir, "/x_", data.name, ".txt", sep=""))
-  x.data.subset <- x.data[, target.measure.idx]
-  names(x.data.subset) <- measures$measureName[target.measure.idx]
-  
-  # return a tidy dataset
-  data.frame(subject, y.data, x.data.subset)
-}
-
-# tidy dataset
-train.df <- create.dataset("train")
-test.df <- create.dataset("test")
-data.df <- rbind(train.df, test.df)
-
-
-## 5. From the data set in step 4, creates a second, independent tidy data set 
-## with the average of each variable for each activity and each subject.
+## 1. Merges the training and the test sets to create one data set.
+## 2. Extracts only the measurements on the mean and standard deviation for each measurement. 
+## 3. Uses descriptive activity names to name the activities in the data set
+## 4. Appropriately labels the data set with descriptive variable names. 
+## 5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
 library(reshape2)
-vars <- c("activityID", "activityName", "subjectID")
-measure.vars <- setdiff(colnames(data.df), vars)
-data.melt <- melt(data.df, id=vars, measure.vars=measure.vars)
-data.df2 <- dcast(data.melt, activityName + subjectID ~ variable, mean)
 
-write.table(data.df2, file="tidy_data.txt", row.name=FALSE)
+# Load activity labels + features
+activityLabels <- read.table("UCI HAR Dataset/activity_labels.txt")
+activityLabels[,2] <- as.character(activityLabels[,2])
+
+features <- read.table("UCI HAR Dataset/features.txt")
+features[,2] <- as.character(features[,2])
+
+# Extract only the data on mean and standard deviation
+featuresWanted <- grep(".*mean.*|.*std.*", features[,2])
+featuresWanted.names <- features[featuresWanted,2]
+
+featuresWanted.names = gsub('-mean', 'Mean', featuresWanted.names)
+featuresWanted.names = gsub('-std', 'Std', featuresWanted.names)
+
+featuresWanted.names <- gsub('[-()]', '', featuresWanted.names)
+
+
+# Load the datasets
+train <- read.table("UCI HAR Dataset/train/X_train.txt")[featuresWanted]
+trainActivities <- read.table("UCI HAR Dataset/train/Y_train.txt")
+trainSubjects <- read.table("UCI HAR Dataset/train/subject_train.txt")
+train <- cbind(trainSubjects, trainActivities, train)
+
+test <- read.table("UCI HAR Dataset/test/X_test.txt")[featuresWanted]
+testActivities <- read.table("UCI HAR Dataset/test/Y_test.txt")
+testSubjects <- read.table("UCI HAR Dataset/test/subject_test.txt")
+test <- cbind(testSubjects, testActivities, test)
+
+# merge datasets and add labels
+allData <- rbind(train, test)
+colnames(allData) <- c("subject", "activity", featuresWanted.names)
+
+# turn activities & subjects into factors
+allData$activity <- factor(allData$activity, levels = activityLabels[,1], labels = activityLabels[,2])
+allData$subject <- as.factor(allData$subject)
+
+allData.melted <- melt(allData, id = c("subject", "activity"))
+allData.mean <- dcast(allData.melted, subject + activity ~ variable, mean)
+
+write.table(allData.mean, "tidy_data.txt", row.names = FALSE, quote = FALSE)
